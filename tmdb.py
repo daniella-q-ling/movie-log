@@ -117,7 +117,7 @@ def get_keywords(tmdb_id):
     Call /movie/{tmdb_id}/keywords
     Return list of keyword names
     """
-    url = f"{BASE_URL}/movie/{tmdb_id}/credits"
+    url = f"{BASE_URL}/movie/{tmdb_id}/keywords"
     params = {
         "api_key": API_KEY
     }
@@ -167,7 +167,7 @@ def get_genre():
     {"Action": 28, "Comedy": 35, ...
     Discover needs IDs, not names.}
     """
-    url = f"{BASE_URL}/movie/tmdb_id/credits"
+    url = f"{BASE_URL}/genre/movie/list"
     params = {
         "api_key": API_KEY
     }
@@ -182,7 +182,7 @@ def find_person(name):
     Call /search/person
     Return ID of top result, or None if nothing is found
     """
-    url = f"{BASE_URL}/movie/tmdb_id/credits"
+    url = f"{BASE_URL}/search/person"
     params = {
         "api_key": API_KEY
     }
@@ -201,6 +201,75 @@ def find_keyword(word):
     Return ID of top result, or None if nothing is foud.
     (Used for theme filters like "time travel".)
     """
+    url = f"{BASE_URL}/search/keyword"
+    params = {
+        "api_key": API_KEY
+    }
+            
+    response = requests.get(url, params=params)
+    data = response.json()
+
+    results = data.get("results", [])
+    if results:
+        return results[0]["id"]
+    return None
+
+def discover(genre_id=None, max_runtime=None, min_year=None, 
+             person_id=None, keyword_id=None):
+    """
+    Call /discover/movie with only the filters that aren't None"
+        with_genres, with_runtime.lte, primary_release_date.gte (e.g. "2010-01-01"), 
+        with_cast, with_keywords
     
+    Return a list of results in the same small format as search_movie/
+    """
+    url = f"{BASE_URL}/search/keyword"
+    params = {
+        "api_key": API_KEY
+    }
+
+    if genre_id is not None:
+        params["with_genres"] = genre_id
+
+    if max_runtime is not None:
+        params["with_runtime.lte"] = max_runtime
+
+    if min_year is not None:
+        params["primary_released_date.gte"] = f"(min_year)-01-01"
+
+    if person_id is not None:
+        params["with_cast"] = person_id
+
+    if keyword_id is not None:
+        params["with_keywords"] = keyword_id
+
+    response = requests.get(url, params=params)
+    data = response.json()
+
+    return data.get("results", [])
+
+# PHASE 3, PART 8: Recommendations from TMDB
+
+def get_recommended(tmdb_id):
+    """
+    Call /movie/{tmdb_id}/recommendations
+    Returns a list of results in the same small format as search_movie.
+    """
+    url = f"{BASE_URL}/movie/{tmdb_id}/recommendations"
+    params = {
+        "api_key": API_KEY
+    }
+                
+    response = requests.get(url, params=params)
+    data = response.json()
+
+    return data.get("results", [])
+
+
+
+
+
+
+
 
 
