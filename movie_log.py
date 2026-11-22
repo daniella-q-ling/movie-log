@@ -11,7 +11,7 @@ After Part 6, will include:
 Run with: python movie_log.py
 """
 import json
-from tmdb import search_movie, get_details, get_cast, get_keywords, show_movie_page
+from tmdb import search_movie, get_details, get_cast, get_keywords, show_movie_page, get_recommended
 
 LOG_FILE = "movie_log.json"
 
@@ -221,7 +221,7 @@ def add_movie_from_search(movies):
     }
 
     movies.append(movie)
-    print(f"Added {movie["Titlr"]} ({movie["Year"]}) to your movie log.")
+    print(f"Added {movie["Title"]} ({movie["Year"]}) to your movie log.")
 
 def look_up_movie():
     """
@@ -237,11 +237,70 @@ def look_up_movie():
     
     for i, movie in enumerate(search_results, start=1):
         year = movie.get("release_date", "")[:4]
+        print(f"{i}. {movie["title"]} ({year})")
+
+    # Let user select a movie
+    try:
+        movie_num = int(input("enter the number of the movie to look up: "))
+
+        if movie_num < 1 or movie_num > len(search_results):
+            print(f"Invalid movie number.")
+            return
+    except ValueError:
+        print("Please enter a valid number.")
+        return
+
+    # Get selected movie's TMDB_ID
+    selected_movie = search_results[movie_num -1]
+    tmdb_id = selected_movie["id"]
+
+    # Display full movie information
+    show_movie_page(tmdb_id)
+
+# PHASE 3, PART 8: Because you liked...
+
+def because_you_liked(movies, min_rating=8, top_n = 10):
+    """
+    For every movie in log rated min_rating or higher, 
+    get TMDB recommendations (get_recommendations in tmdb.py)
+
+    Combine them all, skip anything already in the log, 
+    and count how many times each movie appears.
+
+    Return top_n movies, most frequent first.
+    """
+    recommendations = {}
+
+    for movie in movies:
+        if movie["Rating"] >= min_rating:
+            recommended_movies = get_recommended(movie["tmdb_id"])
+
+            for recommended in recommended_movies:
+                movie_id = recommended["id"]
+                already_logged = False
+
+                for logged_movie in movies:
+                    if logged_movie["tmdb_id"] == movie_id:
+                        already_logged = True
+
+                if not already_logged:
+                    if movie_id in recommendations:
+                        recommendations[movie_id]["Count"] += 1
+                    else:
+                        recommendations[movie_id] = {
+                            "Title": recommended["title"],
+                            "Year": recommended.get("release_date", "")[:4],
+                            "Rating": recommended.get("vote_average"),
+                            "tmdb_id": movie_id,
+                            "Count": 1
+                        }
+
+    sorted_recommendations = sorted(
+        recommendations.values(),
+        key=lambda movie: movie["Count"], 
+        reverse=True
+    )
+
+    return sorted_recommendations[:top_n]
         
-
-
-
-
-
-
 

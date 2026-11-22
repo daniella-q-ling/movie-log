@@ -13,7 +13,7 @@ import os
 import requests
 
 API_KEY = os.environ["TMDB_API_KEY"]
-BASE_URL = "https://api.themovieb.org/3"
+BASE_URL = "https://api.themoviedb.org/3"
 POSTER_URL = "https://image.tmdb.org/t/p/w500"
 
 # PHASE 2, PART 4: First API call
@@ -223,7 +223,7 @@ def discover(genre_id=None, max_runtime=None, min_year=None,
     
     Return a list of results in the same small format as search_movie/
     """
-    url = f"{BASE_URL}/search/keyword"
+    url = f"{BASE_URL}/discover/movie"
     params = {
         "api_key": API_KEY
     }
@@ -235,7 +235,7 @@ def discover(genre_id=None, max_runtime=None, min_year=None,
         params["with_runtime.lte"] = max_runtime
 
     if min_year is not None:
-        params["primary_released_date.gte"] = f"(min_year)-01-01"
+        params["primary_released_date.gte"] = f"{min_year}-01-01"
 
     if person_id is not None:
         params["with_cast"] = person_id
@@ -248,7 +248,7 @@ def discover(genre_id=None, max_runtime=None, min_year=None,
 
     return data.get("results", [])
 
-# PHASE 3, PART 8: Recommendations from TMDB
+# PHASE 3, PART 7: Recommendations from TMDB
 
 def get_recommended(tmdb_id):
     """
