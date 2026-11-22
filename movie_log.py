@@ -11,7 +11,7 @@ After Part 6, will include:
 Run with: python movie_log.py
 """
 import json
-from tmdb import search_movie, get_details, get_cast, get_keywords
+from tmdb import search_movie, get_details, get_cast, get_keywords, show_movie_page
 
 LOG_FILE = "movie_log.json"
 
@@ -222,6 +222,23 @@ def add_movie_from_search(movies):
 
     movies.append(movie)
     print(f"Added {movie["Titlr"]} ({movie["Year"]}) to your movie log.")
+
+def look_up_movie():
+    """
+    Ask for a title, let user pick from search results.
+    Then call show_movie_page(movie_id). This doesn't add anything to the log.
+    """
+    title = input("Enter movie title to search: ")
+    search_results = search_movie(title)
+
+    if not search_results:
+        print("No results found.")
+        return
+    
+    for i, movie in enumerate(search_results, start=1):
+        year = movie.get("release_date", "")[:4]
+        
+
 
 
 
