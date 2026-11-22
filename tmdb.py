@@ -156,3 +156,51 @@ def show_movie_page(tmdb_id):
     
     for review in reviews:
         print(f" - author: \"{review['author']}\"")
+
+# PHASE 3, PART 7: Filtered Discover
+ 
+def get_genre():
+    """
+    Call /genre/movie/list
+
+    Return dictionary mapping genre name to ID
+    {"Action": 28, "Comedy": 35, ...
+    Discover needs IDs, not names.}
+    """
+    url = f"{BASE_URL}/movie/tmdb_id/credits"
+    params = {
+        "api_key": API_KEY
+    }
+        
+    response = requests.get(url, params=params)
+    data = response.json()
+
+    return {genre["name"]: genre["id"] for genre in data.get("genres", [])}
+
+def find_person(name):
+    """
+    Call /search/person
+    Return ID of top result, or None if nothing is found
+    """
+    url = f"{BASE_URL}/movie/tmdb_id/credits"
+    params = {
+        "api_key": API_KEY
+    }
+        
+    response = requests.get(url, params=params)
+    data = response.json()
+
+    results = data.get("results", [])
+    if results:
+        return results[0]["id"]
+    return None
+
+def find_keyword(word):
+    """
+    Call /search/keyword with query = word
+    Return ID of top result, or None if nothing is foud.
+    (Used for theme filters like "time travel".)
+    """
+    
+
+
