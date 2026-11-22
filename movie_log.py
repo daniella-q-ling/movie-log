@@ -11,6 +11,7 @@ After Part 6, will include:
 Run with: python movie_log.py
 """
 import json
+from tmdb import search_movie, get_details, get_cast, get_keywords
 
 LOG_FILE = "movie_log.json"
 
@@ -118,7 +119,7 @@ def sort_movies(movies, by):
     Does not change original list.
     """
     if by == "rating":
-        reutrn sorted(movies, key=lambda x: x['Rating'], reverse = True)
+        return sorted(movies, key=lambda x: x['Rating'], reverse = True)
     elif by == "date watched":
         return sorted(movies, key=lambda x: x['Date Watched'], reverse = True)
 
@@ -146,4 +147,84 @@ def show_stats(movies):
         print(f"- {movie['Title']} ({movie['Year']})")
 
 # PHASE 2, PART 6: Connect lookup to the log
+
+def add_movie_from_search(movies):
+    """
+    Uses TMDB:
+    1. Ask for title and call search_tmdb(title)
+    2. Display search results, numbered, and let user pick one
+    3. Use get_details, get_cast, and get_keywords with movie's ID
+    4. Ask ONLY for user's rating, date watched, notes
+    5. Build full dictionary (including tmdb_id, genres, runtie, cast, director, keywords) and append
+    
+    Menu's 'ADD' option should call this function instead of add_movie().
+    """
+    title = input("Enter movie title to search: ")
+    search_results = search_movie(title)
+
+    if not search_results:
+        print("No results found.")
+        return
+
+    for i, movie in enumerate(search_results, start=1):
+        year = movie.get("release_date", "")[:4]
+        print(f"{i}. {movie["title"]} ({year})")
+
+    try:
+        movie_num = int(input("Enter the number of the movie you want to add: "))
+
+        if movie_num < 1 or movie_num > len(search_results):
+            print("Invalid movie number.")
+            return
+
+    except ValueError:
+        print("Please enter a valid number.")
+        return
+
+    # Get selected movie's TMDB ID
+    selected_movie = search_results[movie_num - 1]
+    tmdb_id = selected_movie["id"]
+
+    # Get additional movie information
+    details = get_details(tmdb_id)
+    cast_info = get_cast(tmdb_id)
+    keywords = get_keywords(tmdb_id)
+
+    # Ask user for information
+    rating = input("Enter your rating (1-10: ")
+
+    try:
+        rating = int(rating)
+        if rating < 1 or rating > 10:
+            print("Rating must be 1 and 10.")
+            return
+    except ValueError:
+        print("Please enter a valid number.")
+        return
+
+    date_watched = input("Enter date watched (yyyy-mm-dd): ")
+    notes = input("Enter any notes about the movie: ")
+
+    # Build movie dictionary
+    movie = {
+        "Title": details["Title"],
+        "Year": details["Year"],
+        "Rating": rating,
+        "Date Watched": date_watched,
+        "Notes": notes,
+        "tmdb_id": tmdb_id,
+        "Genres": details["Genres"],
+        "Runtime": details["Runtime"],
+        "Cast": cast_info["Cast"],
+        "Director": cast_info["Director"],
+        "Keywords": keywords
+    }
+
+    movies.append(movie)
+    print(f"Added {movie["Titlr"]} ({movie["Year"]}) to your movie log.")
+
+
+
+
+
 
