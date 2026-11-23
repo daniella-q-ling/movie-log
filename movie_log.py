@@ -36,11 +36,11 @@ def add_movie(movies):
 
     # Build dictionary and append to 'movies' per each movie
     movie = {
-        "Title": title,
-        "Year": year,
-        "Rating": rating,
-        "Date Watched": date_watched,
-        "Notes": notes
+        "title": title,
+        "year": year,
+        "rating": rating,
+        "date watched": date_watched,
+        "notes": notes
     }
     movies.append(movie)
 
@@ -55,7 +55,7 @@ def list_movies(movies):
         print("No movies yet.")
     else:
         for i, movie in enumerate(movies, start=1):
-            print(f"{i}. {movie['Title']} ({movie['Year']}), {movie['Rating']}/10")
+            print(f"{i}. {movie['title']} ({movie['year']}), {movie['rating']}/10")
 
 def delete_movie(movies):
     """
@@ -70,7 +70,7 @@ def delete_movie(movies):
         movie_num = int(input("Enter the number of the movie to delete: "))
         if 1 <= movie_num <= len(movies):
             deleted_movie = movies.pop(movie_num - 1)
-            print(f"Deleted movie: {deleted_movie['Title']} ({deleted_movie['Year']})")
+            print(f"Deleted movie: {deleted_movie['title']} ({deleted_movie['year']})")
         else:
             print("Invalid movie number.")
     except ValueError:
@@ -144,7 +144,7 @@ def show_stats(movies):
     print(f"Highest-rated movie(s) ({highest_rating}/10):")
     
     for movie in highest_rated_movies:
-        print(f"- {movie['Title']} ({movie['Year']})")
+        print(f"- {movie['title']} ({movie['year']})")
 
 # PHASE 2, PART 6: Connect lookup to the log
 
@@ -207,21 +207,21 @@ def add_movie_from_search(movies):
 
     # Build movie dictionary
     movie = {
-        "Title": details["Title"],
-        "Year": details["Year"],
-        "Rating": rating,
-        "Date Watched": date_watched,
-        "Notes": notes,
+        "title": details["Title"],
+        "year": details["Year"],
+        "rating": rating,
+        "date watched": date_watched,
+        "notes": notes,
         "tmdb_id": tmdb_id,
-        "Genres": details["Genres"],
-        "Runtime": details["Runtime"],
-        "Cast": cast_info["Cast"],
-        "Director": cast_info["Director"],
-        "Keywords": keywords
+        "genres": details["Genres"],
+        "runtime": details["Runtime"],
+        "cast": cast_info["Cast"],
+        "director": cast_info["Director"],
+        "keywords": keywords
     }
 
     movies.append(movie)
-    print(f"Added {movie["Title"]} ({movie["Year"]}) to your movie log.")
+    print(f"Added {movie["title"]} ({movie["year"]}) to your movie log.")
 
 def look_up_movie():
     """
@@ -285,14 +285,14 @@ def because_you_liked(movies, min_rating=8, top_n = 10):
 
                 if not already_logged:
                     if movie_id in recommendations:
-                        recommendations[movie_id]["Count"] += 1
+                        recommendations[movie_id]["count"] += 1
                     else:
                         recommendations[movie_id] = {
-                            "Title": recommended["title"],
-                            "Year": recommended.get("release_date", "")[:4],
-                            "Rating": recommended.get("vote_average"),
+                            "title": recommended["title"],
+                            "year": recommended.get("release_date", "")[:4],
+                            "rating": recommended.get("vote_average"),
                             "tmdb_id": movie_id,
-                            "Count": 1
+                            "count": 1
                         }
 
     sorted_recommendations = sorted(
@@ -447,11 +447,11 @@ def recommend(movies, top_n=10):
 
     total_score, reasons = score_movie(movie_info, profile)
     scored_movies.append({
-        "Title": details["Title"],
-        "Year": details["Year"],
+        "title": details["Title"],
+        "year": details["Year"],
         "tmdb_id": tmdb_id,
-        "Score": total_score,
-        "Reasons": reasons
+        "score": total_score,
+        "reasons": reasons
     })
 
     # Sort by highest score first
@@ -464,12 +464,12 @@ def recommend(movies, top_n=10):
     print("\nMovies recommended for you:")
 
     for i, movie in enumerate(scored_movies[:top_n], start=1):
-        print(f"\n{i}, {movie["Title"]} ({movie["Year"]})")
-        print(f"    Taste score: {movie['Score']}")
+        print(f"\n{i}, {movie["title"]} ({movie["year"]})")
+        print(f"    Taste score: {movie['score']}")
 
         if movie["Reasons"]:
             print("     Because you like:")
-            for reason in movie["Reasons"][:5]:
+            for reason in movie["reasons"][:5]:
                 print(f"    - {reason}")
 
 # MENU
@@ -541,7 +541,7 @@ def main():
             if recommendations:
                 print("\nBecause you liked these movies:")
                 for i, movie in enumerate(recommendations, start=1):
-                    print(f"{i}. {movie["Title"]} ({movie["Year"]})")
+                    print(f"{i}. {movie["title"]} ({movie["year"]})")
 
             else:
                 print("No recommendations found.")
@@ -552,3 +552,6 @@ def main():
             break
         else:
             print("Invalid choice. Please try again.")
+
+if __name__ == "__main__":
+    main()
