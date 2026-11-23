@@ -12,13 +12,15 @@ Run locally with:  flask --app app run --debug
 import os
 from functools import wraps
 
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, abort
 from werkzeug.security import generate_password_hash, check_password_hash
 
 import db
 from tmdb import (search_movie, get_details, get_cast, get_reviews, get_keywords,
                   get_genre, find_person, find_keyword, discover, POSTER_URL)
 from movie_log import build_profile, score_movie, get_recommendations_for 
+
+import requests
 
 app = Flask(__name__)
 # Signs the login cookie. Store FLASK_SECRET_KEY as a Codespaces secret (any long random string).
@@ -45,6 +47,16 @@ def login_required(view):
         return view(*args, **kwargs)
     return wrapped
 
+@app.errorhandler(requests.RequestException)
+def tmdb_error(e):
+    """Shown whenever a TMDB request fails (slow, down, or an error response)."""
+    return render_template("error.html",
+                           message="We couldn't reach the movie database. Please try again in a moment."), 503
+
+@app.errorhandler(404)
+def not_found(e):
+    return render_template("error.html",
+                           message="We couldn't find that page. It may have rolled away. 🍡"), 404
 
 # =============================================================================
 # PART 12-13: Home and search
@@ -93,6 +105,11 @@ def movie(movie_id):
          their log (db.get_log_entry) so the page can say "Already logged".
       3. render_template("movie.html", ...) passing everything the page needs.
     """
+    try:
+        details = get_details(movie_id)
+    except requests.HTTPError:
+        abort(404)
+
     details = get_details(movie_id)
     print("DETAILS:", details)
     cast = get_cast(movie_id)

@@ -32,7 +32,8 @@ def search_movie(title):
         "query": title
     }
 
-    response = requests.get(url, params=params)
+    response = requests.get(url, params=params, timeout=10)
+    response.raise_for_status()
     return response.json().get("results", [])
 
 # PHASE 2, PART 5: Movie details
@@ -49,7 +50,8 @@ def get_details(tmdb_id):
         "api_key": API_KEY
     }
 
-    response = requests.get(url, params=params)
+    response = requests.get(url, params=params, timeout=10)
+    response.raise_for_status()
     data = response.json()
 
     return {
@@ -75,7 +77,8 @@ def get_cast(tmdb_id):
         "api_key": API_KEY
     }
 
-    response = requests.get(url, params=params)
+    response = requests.get(url, params=params, timeout=10)
+    response.raise_for_status()
     data = response.json()
 
     cast = [member["name"] for member in data.get("cast", [])[:5]]
@@ -99,7 +102,8 @@ def get_reviews(tmdb_id, max_reviews = 5, max_length = 200):
         "api_key": API_KEY
     }
 
-    response = requests.get(url, params=params)
+    response = requests.get(url, params=params, timeout=10)
+    response.raise_for_status()
     data = response.json()
 
     reviews = []
@@ -123,7 +127,8 @@ def get_keywords(tmdb_id):
         "api_key": API_KEY
     }
     
-    response = requests.get(url, params=params)
+    response = requests.get(url, params=params, timeout=10)
+    response.raise_for_status()
     data = response.json()
 
     return [keyword["name"] for keyword in data.get("keywords", [])]
@@ -173,7 +178,8 @@ def get_genre():
         "api_key": API_KEY
     }
         
-    response = requests.get(url, params=params)
+    response = requests.get(url, params=params, timeout=10)
+    response.raise_for_status()
     data = response.json()
 
     return {genre["name"]: genre["id"] for genre in data.get("genres", [])}
@@ -181,7 +187,8 @@ def get_genre():
 def find_person(name):
     """Return the TMDB ID of the top person matching `name`, or None."""
     response = requests.get(BASE_URL + "/search/person",
-                            params={"api_key": API_KEY, "query": name})
+                            params={"api_key": API_KEY, "query": name}, timeout=10)
+    response.raise_for_status()
     data = response.json()
     results = data.get("results", [])
     if not results:
@@ -195,7 +202,8 @@ def find_keyword(word):
     (Used for theme filters like "time travel".)
     """
     response = requests.get(BASE_URL + "/search/keyword",
-                                params={"api_key": API_KEY, "query": word})
+                                params={"api_key": API_KEY, "query": word}, timeout=10)
+    response.raise_for_status()
     data = response.json()
     results = data.get("results", [])
     if not results:
@@ -232,7 +240,8 @@ def discover(genre_id=None, max_runtime=None, min_year=None,
     if keyword_id is not None:
         params["with_keywords"] = keyword_id
 
-    response = requests.get(url, params=params)
+    response = requests.get(url, params=params, timeout=10)
+    response.raise_for_status()
     data = response.json()
 
     return data.get("results", [])
@@ -249,7 +258,8 @@ def get_recommended(tmdb_id):
         "api_key": API_KEY
     }
                 
-    response = requests.get(url, params=params)
+    response = requests.get(url, params=params, timeout=10)
+    response.raise_for_status()
     data = response.json()
 
     return data.get("results", [])
