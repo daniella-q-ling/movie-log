@@ -265,6 +265,15 @@ def get_recommended(tmdb_id):
 
     return data.get("results", [])
 
+# Quick Test
+if __name__ == "__main__":
+    print(search_movie("Inception"))
+    print(get_details(27205))
+    print(get_cast(27205))
+    print(get_reviews(27205))
+    print(get_keywords(27205))
+    show_movie_page(27205)
+
 
 
 
