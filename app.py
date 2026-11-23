@@ -57,8 +57,7 @@ def index():
     Part 12: start by returning just the text "Hello, Movie Log!" to check Flask works.
     Then switch to render_template("index.html").
     """
-    # TODO
-    pass
+    return "Welcome to your movie log!"
 
 
 @app.route("/search")
