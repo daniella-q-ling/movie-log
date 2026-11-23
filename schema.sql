@@ -32,3 +32,14 @@ CREATE TABLE IF NOT EXISTS log_entries (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+CREATE TABLE IF NOT EXISTS watchlist (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id      INTEGER NOT NULL,
+    tmdb_id      INTEGER NOT NULL,
+    title        TEXT,
+    year         TEXT,
+    poster_path  TEXT,
+    added_on     TEXT DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (user_id, tmdb_id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);

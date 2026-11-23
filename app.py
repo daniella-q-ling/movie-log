@@ -119,8 +119,13 @@ def movie(movie_id):
     if session.get("user_id"):
         entry = db.get_log_entry(session["user_id"], movie_id)
 
+    on_watchlist = False
+    if session.get("user_id"):
+        on_watchlist = db.is_on_watchlist(session["user_id"], movie_id)
+
     return render_template("movie.html", details=details, cast=cast,
-                       reviews=reviews, keywords=keywords, entry=entry)
+                       reviews=reviews, keywords=keywords, entry=entry,
+                       on_watchlist=on_watchlist)
 
 # =============================================================================
 # PART 17: Accounts
@@ -271,6 +276,7 @@ def add_to_log(movie_id):
     if not others:
         pending["position"] = 0
         db.add_log_entry(session["user_id"], pending)
+        db.remove_from_watchlist(session["user_id"], pending["tmdb_id"])
         flash("Added to your log :)")
         return redirect(url_for("movie", movie_id=movie_id))
 
@@ -306,6 +312,7 @@ def rank():
         if lo == hi:
             pending["position"] = lo
             db.add_log_entry(session["user_id"], pending)
+            db.remove_from_watchlist(session["user_id"], pending["tmdb_id"])
             session.pop("pending")
             session.pop("lo")
             session.pop("hi")
@@ -331,6 +338,26 @@ def delete_from_log(entry_id):
     flash("Removed from your log.")
     return redirect(url_for("my_log"))
 
+@app.route("/watchlist/add/<int:movie_id>", methods=["POST"])
+@login_required
+def add_watchlist(movie_id):
+    details = get_details(movie_id)
+    db.add_to_watchlist(session["user_id"], details)
+    flash("Added to your watchlist!")
+    return redirect(url_for("movie", movie_id=movie_id))
+
+@app.route("/watchlist/remove/<int:movie_id>", methods=["POST"])
+@login_required
+def remove_watchlist(movie_id):
+    db.remove_from_watchlist(session["user_id"], movie_id)
+    flash("Removed from your watchlist.")
+    return redirect(request.referrer or url_for("watchlist"))
+
+@app.route("/watchlist")
+@login_required
+def watchlist():
+    movies = db.get_watchlist(session["user_id"])
+    return render_template("watchlist.html", movies=movies)
 
 # =============================================================================
 # PART 19: Stats, discover, recommendations

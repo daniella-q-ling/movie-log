@@ -47,6 +47,16 @@
       <button type="submit" name="bucket" value="disliked">🩶 Didn't like it</button>
     </div>
   </form>
+
+    {% if on_watchlist %}
+    <form method="post" action="{{ url_for('remove_watchlist', movie_id=details.id) }}">
+      <button type="submit" class="secondary outline">✓ On your watchlist (remove)</button>
+    </form>
+  {% else %}
+    <form method="post" action="{{ url_for('add_watchlist', movie_id=details.id) }}">
+      <button type="submit" class="secondary">+ Want to watch</button>
+    </form>
+  {% endif %}
 {% endif %}
 
 <h2>Reviews</h2>

@@ -221,3 +221,47 @@ def delete_log_entry(user_id, entry_id):
 )
     conn.commit()
     conn.close()
+
+def add_to_watchlist(user_id, movie):
+    """Save a movie to the user's watchlist. Does nothing if it's already there."""
+    conn = get_connection()
+    conn.execute(
+        "INSERT OR IGNORE INTO watchlist (user_id, tmdb_id, title, year, poster_path) "
+        "VALUES (?, ?, ?, ?, ?)",
+        (user_id, movie["id"], movie["title"], movie["year"], movie["poster_path"])
+    )
+    conn.commit()
+    conn.close()
+
+def remove_from_watchlist(user_id, tmdb_id):
+    """Remove a movie from the user's watchlist (if it's there)."""
+    conn = get_connection()
+    conn.execute(
+        "DELETE FROM watchlist WHERE user_id = ? AND tmdb_id = ?",
+        (user_id, tmdb_id)
+    )
+
+    conn.commit()
+    conn.close()
+
+def get_watchlist(user_id):
+    """Return the user's watchlist as a list of dictionaries, newest first."""
+    conn = get_connection()
+    rows = conn.execute(
+        "SELECT * FROM watchlist WHERE user_id = ? ORDER BY added_on DESC",
+        (user_id,)
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+def is_on_watchlist(user_id, tmdb_id):
+    """Return True if this movie is on the user's watchlist, otherwise False."""
+    conn = get_connection()
+    row = conn.execute(
+        "SELECT * FROM watchlist WHERE user_id = ? AND tmdb_id = ?",
+        (user_id, tmdb_id)
+    ).fetchone()
+
+    conn.close()
+
+    return row is not None

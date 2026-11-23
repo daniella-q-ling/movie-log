@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Watchlist{% endblock %}
+
+{% block content %}
+<h1>Want to watch ({{ movies | length }})</h1>
+
+{% if not movies %}
+  <p>Nothing saved yet. Tap "+ Want to watch" on any movie page!</p>
+{% else %}
+  <div class="grid-cards">
+    {% for movie in movies %}
+      <div>
+        <a href="{{ url_for('movie', movie_id=movie.tmdb_id) }}">
+          {% if movie.poster_path %}
+            <img src="{{ POSTER_URL }}{{ movie.poster_path }}" alt="{{ movie.title }}">
+          {% endif %}
+          <strong>{{ movie.title }}</strong>
+          <p>{{ movie.year }}</p>
+        </a>
+        <form method="post" action="{{ url_for('remove_watchlist', movie_id=movie.tmdb_id) }}">
+          <button type="submit" class="secondary outline">Remove</button>
+        </form>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endblock %}

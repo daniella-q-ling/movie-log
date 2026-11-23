@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Movie Log{% endblock %}</title>
+  <title>{% block title %}Mochiroll{% endblock %}</title>
   <!-- Pico CSS: makes plain HTML look clean right away. Your own CSS goes in static/style.css -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
@@ -19,6 +18,7 @@
         <li><a href="{{ url_for('discover_page') }}">Discover</a></li>
         {% if session.get('user_id') %}
           <li><a href="{{ url_for('my_log') }}">My Log</a></li>
+          <li><a href="{{ url_for('watchlist') }}">Watchlist</a></li>
           <li><a href="{{ url_for('recommend_page') }}">For You</a></li>
           <li><a href="{{ url_for('stats') }}">Stats</a></li>
           <li><a href="{{ url_for('logout') }}">Log out</a></li>
