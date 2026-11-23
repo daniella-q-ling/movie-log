@@ -15,6 +15,8 @@ import sqlite3
 
 DB_FILE = "movielog.db"
 
+BUCKET_RANGES = {"loved": (7.0, 10.0), "fine": (4.0, 7.0), "disliked": (0.0, 4.0)}
+BUCKET_ORDER = ["loved", "fine", "disliked"]
 
 def get_connection():
     """
@@ -37,6 +39,18 @@ def init_db():
         conn.commit()
         conn.close()
 
+def score_for(bucket, position, count):
+    """
+    Return the score out of 10 for a movie at 'position' in a bucket of 'count'movies.
+    Posiiton 0 (best) gets bucket's highest score, and each lower position
+    gets little less. Round to 1 decimal. 
+    """
+    low, high = BUCKET_RANGES[bucket]
+
+    score = high - (high - low) * position / count
+
+    return round(score, 1)
+
 
 # =============================================================================
 # PART 16: Users
@@ -54,19 +68,28 @@ def create_user(username, password_hash):
       - cursor.lastrowid gives the new id.
       - Remember conn.commit() after any change, then conn.close().
     """
-    # TODO
-    pass
+    conn = get_connection()
+    cur = conn.execute(
+        "INSERT INTO users (username, password_hash) VALUES (?, ?)",
+        (username, password_hash)
+    )
+
+    conn.commit()
+    new_id = cur.lastrowid
+    conn.close()
+
+    return new_id
 
 
 def get_user_by_username(username):
     """
     Return the user row (acts like a dict with id, username, password_hash)
     or None if no user has that username.
-
-    Hint: conn.execute(...).fetchone()
     """
-    # TODO
-    pass
+    conn = get_connection()
+    row = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+    conn.close()
+    return row
 
 
 # =============================================================================
@@ -82,8 +105,36 @@ def add_log_entry(user_id, movie):
 
     Convert the list fields with json.dumps() before inserting.
     """
-    # TODO
-    pass
+    conn = get_connection()
+    conn.execute(
+        "UPDATE log_entries SET position = position + 1 " 
+        "WHERE user_id = ? AND bucket = ? AND position >= ?",
+        (user_id, movie["bucket"], movie["position"])
+    )
+
+    conn.execute(
+    "INSERT INTO log_entries (user_id, tmdb_id, title, year, bucket, position, "
+    "date_watched, notes, runtime, genres, cast_members, director, keywords, poster_path) "
+    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    (
+        user_id,
+        movie["tmdb_id"],
+        movie["title"],
+        movie["year"],
+        movie["bucket"],
+        movie["position"],
+        movie["date_watched"],
+        movie["notes"],
+        movie["runtime"],
+        json.dumps(movie["genres"]),
+        json.dumps(movie["cast"]),
+        movie["director"],
+        json.dumps(movie["keywords"]),
+        movie["poster_path"],
+    )
+)
+    conn.commit()
+    conn.close()
 
 
 def row_to_movie(row):
@@ -91,11 +142,31 @@ def row_to_movie(row):
     Turn one database row back into a normal movie dictionary:
     dict(row), then json.loads() the genres, cast, and keywords fields.
 
-    This is what lets your recommender code work unchanged!
+    Lets recommender code work unchanged!
     """
-    # TODO
-    pass
+    movie = dict(row)
+    movie["genres"] = json.loads(movie["genres"])
+    movie["keywords"] = json.loads(movie["keywords"])
+    movie["cast"] = json.loads(movie.pop("cast_members"))
+    return movie
 
+def get_bucket(user_id, bucket):
+    """
+    Return user's movies in one bucket ("loved", "fine", "disliked")
+    as movie dictionaries, best first.
+    """
+    conn = get_connection()
+    rows = conn.execute(
+        "SELECT * FROM log_entries WHERE user_id = ? AND bucket = ? ORDER BY position",
+        (user_id, bucket)
+    ).fetchall()
+
+    conn.close()
+
+    movies = []
+    for r in rows:
+        movies.append(row_to_movie(r))
+    return movies
 
 def get_log(user_id):
     """
