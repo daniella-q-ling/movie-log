@@ -9,6 +9,8 @@
 }
 
 nav,
+nav a,
+nav strong,
 .grid-cards strong,
 .movie-layout h1 {
   font-family: "Cute Dino", sans-serif;
