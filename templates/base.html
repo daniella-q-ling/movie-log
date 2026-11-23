@@ -1,0 +1,59 @@
+<!--
+  base.html: the layout every page shares (nav bar, flash messages, footer).
+  Other pages "extend" this and fill in the {% block content %} part.
+  Mostly done for you, so you can see how templates work. TODOs are at the bottom.
+
+  Jinja cheat sheet:
+    {{ variable }}              prints a value
+    {% if ... %} {% endif %}    an if-statement
+    {% for x in list %} {% endfor %}  a loop
+    {{ url_for('search') }}     the URL for a route function (safer than typing "/search")
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Movie Log{% endblock %}</title>
+  <!-- Pico CSS: makes plain HTML look clean right away. Your own CSS goes in static/style.css -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="container">
+    <nav>
+      <ul>
+        <li><a href="{{ url_for('index') }}"><strong>🎬 Movie Log</strong></a></li>
+      </ul>
+      <ul>
+        <li><a href="{{ url_for('discover_page') }}">Discover</a></li>
+        {% if session.get('user_id') %}
+          <li><a href="{{ url_for('my_log') }}">My Log</a></li>
+          <li><a href="{{ url_for('recommend_page') }}">For You</a></li>
+          <li><a href="{{ url_for('stats') }}">Stats</a></li>
+          <li><a href="{{ url_for('logout') }}">Log out</a></li>
+        {% else %}
+          <li><a href="{{ url_for('login') }}">Log in</a></li>
+          <li><a href="{{ url_for('signup') }}" role="button">Sign up</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    {% with messages = get_flashed_messages() %}
+      {% for message in messages %}
+        <article class="flash">{{ message }}</article>
+      {% endfor %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="container">
+    <!-- TODO (Part 15): add the TMDB credit line here:
+         "This product uses the TMDB API but is not endorsed or certified by TMDB." -->
+    <!-- TODO (optional): add a link to your GitHub repo -->
+  </footer>
+</body>
+</html>

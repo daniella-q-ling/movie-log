@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}My Log{% endblock %}
+
+{% block content %}
+<!--
+  PART 18: The user's log
+  Variables from app.py: movies (list of dicts)
+
+  TODO:
+    1. Heading with the count: My Log ({{ movies | length }} movies)
+    2. Sort links: <a href="?sort=rating">Top rated</a> and <a href="?sort=date">Recent</a>
+    3. If empty: "Nothing here yet. Search for a movie to log it."
+    4. Otherwise a <table> with columns: poster (small), title (linking to its movie page),
+       your rating, date watched, notes, and a Delete button.
+    5. The Delete button must be a tiny form that POSTs, not a link:
+         <form method="post" action="{{ url_for('delete_from_log', entry_id=movie.id) }}">
+           <button type="submit">Delete</button>
+         </form>
+       (Links should never change data, because browsers sometimes pre-load links!)
+-->
+{% endblock %}

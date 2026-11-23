@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Search: {{ query }}{% endblock %}
+
+{% block content %}
+<!--
+  PART 13: Search results
+  Variables from app.py: query, results
+
+  TODO:
+    1. Heading: Results for "{{ query }}"
+    2. If results is empty, show "No movies found."
+    3. Otherwise loop over results and show each one as a card:
+         - the poster, if there is one: <img src="{{ POSTER_URL }}{{ movie.poster_path }}">
+           (You may need to add poster_path to what search_movie returns.)
+         - the title and year
+         - a link to the details page: {{ url_for('movie', movie_id=movie.id) }}
+    4. Wrap the cards in <div class="grid-cards"> so style.css can lay them out in a grid.
+-->
+{% endblock %}

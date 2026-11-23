@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Discover{% endblock %}
+
+{% block content %}
+<!--
+  PART 19: Discover with filters
+
+  TODO:
+    1. A form with method="get" and these inputs:
+         - genre: a <select> dropdown (loop over the genre names you pass in from app.py)
+         - max_runtime: number input (minutes)
+         - min_year: number input
+         - actor: text input
+         - theme: text input (e.g. "time travel")
+       Every field is optional.
+    2. Below it, if there are results, show them as cards,
+       just like search.html. (Copy that loop!)
+
+  Bonus: keep the user's choices filled in after they submit, e.g.
+       <input name="actor" value="{{ request.args.get('actor', '') }}">
+-->
+{% endblock %}

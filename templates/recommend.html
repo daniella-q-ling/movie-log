@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}For You{% endblock %}
+
+{% block content %}
+<!--
+  PART 19: Personalized recommendations
+  Variables from app.py: recs (each has title, poster_path, id, score, reasons)
+
+  TODO:
+    1. Heading: "Recommended for you"
+    2. If the user doesn't have enough movies logged, show the friendly message instead.
+    3. Otherwise, cards with: poster, title (linking to its movie page), and
+       a "Why:" line listing the reasons: {{ rec.reasons | join(" · ") }}
+    4. Optional: show the top 3-5 genres from their taste profile at the top
+       ("Your taste: Sci-Fi, Thriller, Animation").
+-->
+{% endblock %}
