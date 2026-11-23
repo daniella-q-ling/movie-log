@@ -472,5 +472,83 @@ def recommend(movies, top_n=10):
             for reason in movie["Reasons"][:5]:
                 print(f"    - {reason}")
 
+# MENU
 
+def main():
+    """
+    Load log, then loop forever:
+    - print menu options
+    - read user's choice
+    - call matching function
+    - save after anything that changes log
+    - break when user chooses Quit
+    """
+    # Load existing movie log
+    movies = load_log()
 
+    while True:
+        print("\n==== MOVIE LOG ====")
+        print("1. Add a movie")
+        print("2. List all movies")
+        print("3. Delete a movie")
+        print("4. Filter movies by rating")
+        print("5. Sort movies")
+        print("6. Show statistics")
+        print("7. Look up a movie")
+        print("8. Because you liked...")
+        print("9. Personalized recommendations")
+        print("10. Quit")
+
+        choice = input("\nEnter you choices: ")
+
+        if choice == "1":
+            add_movie_from_search(movies)
+            save_log(movies)
+        elif choice == "2":
+            list_movies(movies)
+        elif choice == "3":
+            delete_movie(movies)
+            save_log(movies)
+        elif choice == "4":
+            try:
+                min_rating = int(input("Show movies rated at least: "))
+                filtered_movies = filter_by_rating(movies, min_rating)
+                list_movies(filtered_movies)
+            except ValueError:
+                print("Please enter a valid number.")
+        elif choice == "5":
+            print("1. Sort by rating (highest first)")
+            print("2. Sort by date watched (most recent first)")
+
+            sort_choice = input("Enter your choice: ")
+
+            if sort_choice == "1":
+                sorted_movies = sort_movies(movies, "rating")
+                list_movies(sorted_movies)
+
+            elif sort_choice == "2":
+                sorted_movies = sort_movies(movies, "date watched")
+                list_movies(sorted_movies)
+            else:
+                print("Invalid choice.")
+        elif choice == "6":
+            show_stats(movies)
+        elif choice == "7":
+            look_up_movie()
+        elif choice == "8":
+            recommendations = because_you_liked(movies)
+
+            if recommendations:
+                print("\nBecause you liked these movies:")
+                for i, movie in enumerate(recommendations, start=1):
+                    print(f"{i}. {movie["Title"]} ({movie["Year"]})")
+
+            else:
+                print("No recommendations found.")
+        elif choice == "9":
+            recommend(movies)
+        elif choice == "10":
+            save_log(movies)
+            break
+        else:
+            print("Invalid choice. Please try again.")
