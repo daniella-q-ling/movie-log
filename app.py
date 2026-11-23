@@ -120,11 +120,34 @@ def signup():
          Never store the plain password!
       4. Log them in: session["user_id"] = the new user's id.
       5. Redirect to the homepage.
-
-    Hint: if request.method == "POST": ...
     """
-    # TODO
-    pass
+    if request.method == "POST":
+        # Step 1: read the form
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+
+        # Step 2: neither can be empty
+        if not username or not password:
+            flash("Please fill in both fields.")
+            return render_template("signup.html")
+
+        # Step 3: username must not be taken
+        if db.get_user_by_username(username):
+            flash("That username is taken.")
+            return render_template("signup.html")
+
+
+        # Step 4: create user with hashed password
+        user_id = db.create_user(username, generate_password_hash(password))
+
+        # Step 5: log them in
+        session["user_id"] = user_id
+        session["username"] = username
+        # Step 6: welcome and go home
+        flash("Welcome to Mochiroll!")
+        return redirect(url_for("index"))
+    
+    return render_template("signup.html")
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -138,15 +161,34 @@ def login():
          (Use the same message for both, so people can't guess which usernames exist.)
       3. Otherwise set session["user_id"] and session["username"], then redirect home.
     """
-    # TODO
-    pass
+    if request.method == "POST":
+        # Step 1: read form
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+
+        # Step 2: look up user
+        user = db.get_user_by_username(username)
+
+        # Step 3: check password
+        if user is None or not check_password_hash(user["password_hash"], password):
+            flash("Wrong username or password.")
+            return render_template("login.html")
+
+        # Step 4: log in and redirect
+        session["user_id"] = user["user_id"]
+        session["username"] = user["username"]
+        flash("Welcome back!")
+        return redirect(url_for("index"))
+
+    return render_template("login.html")
 
 
 @app.route("/logout")
 def logout():
     """Clear the session (session.clear()) and redirect to the homepage."""
-    # TODO
-    pass
+    session.clear()
+    flash("Logged out.")
+    return redirect(url_for("index"))
 
 
 # =============================================================================
