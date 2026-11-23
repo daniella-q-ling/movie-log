@@ -414,5 +414,63 @@ def recommend(movies, top_n=10):
     3. Fetch each candidate's details, cast, keywords so they can be scored
     4. Score, sort highest, print top_n with their reasons
     """
+
+    if len(movies) == 0:
+        print("Your movie log is empty. Add movies to get recommendations.")
+        return
+
+    # Build taste profile
+    profile = build_profile(movies)
+
+    # Get candidate movies
+    candidates = because_you_liked(movies, min_rating = 0, top_n = 50)
+
+    if not candidates:
+        print("No recommendations found.")
+        return
+
+    scored_movies = []
+
+    # Fetch candidate's details
+    for candidate in candidates:
+        tmdb_id = candidate["tmdb_id"]
         
+        details = get_details(tmdb_id)
+        cast_info = get_cast(tmdb_id)
+        keywords = get_keywords(tmdb_id)
+
+        movie_info = {
+            "genres": details["Genres"],
+            "cast": cast_info["Cast"],
+            "keywords": keywords
+        }
+
+    total_score, reasons = score_movie(movie_info, profile)
+    scored_movies.append({
+        "Title": details["Title"],
+        "Year": details["Year"],
+        "tmdb_id": tmdb_id,
+        "Score": total_score,
+        "Reasons": reasons
+    })
+
+    # Sort by highest score first
+    scored_movies.sort(
+        key=lambda movie: movie["Score"], 
+        reverse = True
+    )
+
+    # Print top recommendations
+    print("\nMovies recommended for you:")
+
+    for i, movie in enumerate(scored_movies[:top_n], start=1):
+        print(f"\n{i}, {movie["Title"]} ({movie["Year"]})")
+        print(f"    Taste score: {movie['Score']}")
+
+        if movie["Reasons"]:
+            print("     Because you like:")
+            for reason in movie["Reasons"][:5]:
+                print(f"    - {reason}")
+
+
 
