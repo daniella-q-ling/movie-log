@@ -18,7 +18,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import db
 from tmdb import (search_movie, get_details, get_cast, get_reviews, get_keywords,
                   get_genre, find_person, find_keyword, discover, POSTER_URL)
-from movie_log import build_profile, score_movie  
+from movie_log import build_profile, score_movie, get_recommendations_for 
 
 app = Flask(__name__)
 # Signs the login cookie. Store FLASK_SECRET_KEY as a Codespaces secret (any long random string).
@@ -418,8 +418,11 @@ def recommend_page():
     If the user has fewer than ~5 movies logged, show a friendly
     "Log a few more movies first" message instead.
     """
-    # TODO
-    pass
+    movies = db.get_log(session["user_id"])
+    if len(movies) < 5:
+        return render_template("recommend.html", recs=None, need=5 - len(movies))
+    recs = get_recommendations_for(movies, 12)
+    return render_template("recommend.html", recs=recs, need=0)
 
 
 if __name__ == "__main__":

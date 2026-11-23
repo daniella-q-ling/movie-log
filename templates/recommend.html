@@ -3,16 +3,23 @@
 {% block title %}For You{% endblock %}
 
 {% block content %}
-<!--
-  PART 19: Personalized recommendations
-  Variables from app.py: recs (each has title, poster_path, id, score, reasons)
+<h1>For You</h1>
 
-  TODO:
-    1. Heading: "Recommended for you"
-    2. If the user doesn't have enough movies logged, show the friendly message instead.
-    3. Otherwise, cards with: poster, title (linking to its movie page), and
-       a "Why:" line listing the reasons: {{ rec.reasons | join(" · ") }}
-    4. Optional: show the top 3-5 genres from their taste profile at the top
-       ("Your taste: Sci-Fi, Thriller, Animation").
--->
+{% if recs is none %}
+  <p>Log {{ need }} more movie{{ 's' if need != 1 }} to unlock recommendations!</p>
+{% elif not recs %}
+  <p>No recommendations right now. Try logging a few more movies you loved.</p>
+{% else %}
+  <div class="grid-cards">
+    {% for rec in recs %}
+      <a href="{{ url_for('movie', movie_id=rec.id) }}">
+        {% if rec.poster_path %}
+          <img src="{{ POSTER_URL }}{{ rec.poster_path }}" alt="{{ rec.title }}">
+        {% endif %}
+        <strong>{{ rec.title }}</strong>
+        <p><small>Because: {{ rec.reasons | join(" · ") }}</small></p>
+      </a>
+    {% endfor %}
+  </div>
+{% endif %}
 {% endblock %}
