@@ -1,16 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!--
-  PART 13: Homepage
 
-  TODO:
-    1. A big heading and a one-line tagline about the app.
-    2. A search form:
-         <form action="{{ url_for('search') }}" method="get">
-       with a text input named "q" and a Search button.
-       (The input's name becomes ?q=... in the URL, and that's what
-        request.args.get("q") reads in app.py.)
-    3. Optional: if nobody is logged in, a short "Sign up to start your log" message.
--->
+<h1>Mochiroll</h1>
+<p>A cozy little space to log the movies you watch, rate and review your favorites, and discover your personal movie taste.</p>
+
+<form action="{{ url_for('search') }}" method="get">
+    <input type="text" name="q" placeholder="Search for a movie..." required>
+    <button type="submit">Search</button>
+</form>
+
 {% endblock %}

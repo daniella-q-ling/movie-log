@@ -57,7 +57,7 @@ def index():
     Part 12: start by returning just the text "Hello, Movie Log!" to check Flask works.
     Then switch to render_template("index.html").
     """
-    return "Welcome to your movie log!"
+    return render_template("index.html")
 
 
 @app.route("/search")
@@ -71,8 +71,11 @@ def search():
       3. Call search_movie(q).
       4. Return render_template("search.html", query=q, results=results)
     """
-    # TODO
-    pass
+    q = request.args.get("q", "")
+    if not q:
+        return redirect(url_for("index"))
+    results = search_movie(q)
+    return render_template("search.html", query=q, results=results)
 
 
 # =============================================================================
