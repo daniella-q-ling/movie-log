@@ -173,8 +173,13 @@ def get_log(user_id):
     Return a list of movie dictionaries for this user (use row_to_movie on each row),
     newest first (ORDER BY date_watched DESC).
     """
-    # TODO
-    pass
+    log = []
+    for bucket in BUCKET_ORDER:
+        movies = get_bucket(user_id, bucket)
+        for movie in movies:
+            movie["rating"] = score_for(bucket, movie["position"], len(movies))
+        log += movies
+    return log
 
 
 def get_log_entry(user_id, tmdb_id):
@@ -182,15 +187,36 @@ def get_log_entry(user_id, tmdb_id):
     Return this user's entry for a given TMDB movie as a dictionary,
     or None if they haven't logged it. (Used to show "Already logged".)
     """
-    # TODO
-    pass
+    for movie in get_log(user_id):
+        if movie["tmdb_id"] == tmdb_id:
+            return movie
+    return None
 
 
 def delete_log_entry(user_id, entry_id):
     """
     Delete the entry with this id, but only if it belongs to user_id.
 
-    Hint: DELETE FROM log_entries WHERE id = ? AND user_id = ?
+    DELETE FROM log_entries WHERE id = ? AND user_id = ?
     """
-    # TODO
-    pass
+    conn = get_connection()
+    row = conn.execute(
+        "SELECT bucket, position FROM log_entries WHERE id = ? AND user_id = ?",
+        (entry_id, user_id)
+    ).fetchone()
+
+    if row is None:
+        conn.close()
+        return
+
+    conn.execute(
+    "DELETE FROM log_entries WHERE id = ? AND user_id = ?",
+    (entry_id, user_id)
+)
+    conn.execute(
+    "UPDATE log_entries SET position = position - 1 "
+    "WHERE user_id = ? AND bucket = ? AND position > ?",
+    (user_id, row["bucket"], row["position"])
+)
+    conn.commit()
+    conn.close()
