@@ -319,6 +319,37 @@ def delete_from_log(entry_id):
 # PART 19: Stats, discover, recommendations
 # =============================================================================
 
+def get_stats(movies):
+    """
+    Returns dictionary of stats about user's log, or None if it's empty.
+    """
+    if not movies:
+        return None
+
+    total = len(movies)
+    avg_rank = round(sum(m["rating"] for m in movies) / total, 2)
+
+    rated = [m["my_rating"] for m in movies if m.get("my_rating")]
+    avg_mine = round(sum(rated) / len(rated), 2) if rated else None
+
+    hours = round(sum(m["runtime"] or 0 for m in movies) / 60, 1)
+
+    genre_counts = {}
+    for m in movies:
+        if m["bucket"] == "loved":
+            for g in m["genres"]:
+                genre_counts[g] = genre_counts.get(g, 0) + 1
+    favorite_genre = max(genre_counts, key=genre_counts.get) if genre_counts else "—"
+
+    return {
+        "total": total,
+        "avg_rank": avg_rank,
+        "avg_mine": avg_mine,
+        "hours": hours,
+        "favorite_genre": favorite_genre,
+        "top5": movies[:5],
+    }
+
 @app.route("/stats")
 @login_required
 def stats():
@@ -330,8 +361,8 @@ def stats():
     Tip: write a helper that RETURNS the numbers instead of printing them,
     so the template can display them.
     """
-    # TODO
-    pass
+    movies = db.get_log(session["user_id"])
+    return render_template("stats.html", stats=get_stats(movies))
 
 
 @app.route("/discover")

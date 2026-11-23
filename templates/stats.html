@@ -3,14 +3,45 @@
 {% block title %}Stats{% endblock %}
 
 {% block content %}
-<!--
-  PART 19: Stats
+<h1>Your stats</h1>
 
-  TODO:
-    1. A row of "stat cards": total movies, average rating, hours watched, favorite genre.
-       (Wrap them in <div class="grid"> and Pico lays them out side by side.)
-    2. Your top 5 rated movies.
-    3. Optional: movies per month as a simple list, or bars made of divs
-       whose width is set by the count.
--->
+{% if not stats %}
+  <p>Log some movies to see your stats!</p>
+{% else %}
+  <div class="grid">
+    <article>
+      <h2>{{ stats.total }}</h2>
+      <p>movies logged</p>
+    </article>
+    <article>
+      <h2>{{ stats.avg_rank }}</h2>
+      <p>average rank score</p>
+    </article>
+    <article>
+      <h2>{% if stats.avg_mine %}{{ "%.2f" | format(stats.avg_mine) }}{% else %}—{% endif %}</h2>
+      <p>your average rating</p>
+    </article>
+  </div>
+
+  <div class="grid">
+    <article>
+      <h2>{{ stats.hours }}</h2>
+      <p>hours watched</p>
+    </article>
+    <article>
+      <h2>{{ stats.favorite_genre }}</h2>
+      <p>favorite genre</p>
+    </article>
+  </div>
+
+  <h2>Top 5</h2>
+  <ol>
+    {% for m in stats.top5 %}
+      <li>
+        <a href="{{ url_for('movie', movie_id=m.tmdb_id) }}">{{ m.title }}</a>
+        · {{ m.rating }}
+      </li>
+    {% endfor %}
+  </ol>
+{% endif %}
 {% endblock %}
