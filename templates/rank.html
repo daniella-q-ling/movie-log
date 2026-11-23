@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Which did you like more?{% endblock %}
+
+{% block content %}
+<h2>Which did you like more?</h2>
+
+<form method="post">
+  <div class="grid-cards rank-choices">
+    <button type="submit" name="choice" value="new" class="rank-card">
+      {% if pending.poster_path %}
+        <img src="{{ POSTER_URL }}{{ pending.poster_path }}" alt="{{ pending.title }}">
+      {% endif %}
+      <strong>{{ pending.title }}</strong>
+    </button>
+
+    <button type="submit" name="choice" value="old" class="rank-card">
+      {% if other.poster_path %}
+        <img src="{{ POSTER_URL }}{{ other.poster_path }}" alt="{{ other.title }}">
+      {% endif %}
+      <strong>{{ other.title }}</strong>
+    </button>
+  </div>
+
+  <button type="submit" name="choice" value="skip" class="secondary">Too tough to call</button>
+</form>
+{% endblock %}

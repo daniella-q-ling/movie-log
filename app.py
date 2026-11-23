@@ -99,6 +99,8 @@ def movie(movie_id):
     reviews = get_reviews(movie_id)
     keywords = get_keywords(movie_id)
     entry = None
+    if session.get("user_id"):
+        entry = db.get_log_entry(session["user_id"], movie_id)
 
     return render_template("movie.html", details=details, cast=cast,
                        reviews=reviews, keywords=keywords, entry=entry)
@@ -175,7 +177,7 @@ def login():
             return render_template("login.html")
 
         # Step 4: log in and redirect
-        session["user_id"] = user["user_id"]
+        session["user_id"] = user["id"]
         session["username"] = user["username"]
         flash("Welcome back!")
         return redirect(url_for("index"))
@@ -204,8 +206,8 @@ def my_log():
     Bonus: let the user sort with ?sort=rating or ?sort=date
     (read it from request.args, like in search).
     """
-    # TODO
-    pass
+    movies = db.get_log(session["user_id"])
+    return render_template("log.html", movies=movies)
 
 
 @app.route("/log/add/<int:movie_id>", methods=["POST"])
@@ -222,9 +224,82 @@ def add_to_log(movie_id):
          so your recommender code still works.
       4. flash("Added to your log!") and redirect to the movie page.
     """
-    # TODO
-    pass
+    bucket = request.form.get("bucket")
+    if bucket not in db.BUCKET_ORDER:
+        flash("Pick Loved, Fine, or Didn't like.")
+        return redirect(url_for("movie", movie_id=movie_id))
+    
+    details = get_details(movie_id)
+    cast = get_cast(movie_id)
+    keywords = get_keywords(movie_id)
 
+    pending = {
+        "tmdb_id": movie_id,
+        "title": details["title"],
+        "year": details["year"],
+        "bucket": bucket,
+        "date_watched": request.form.get("date_watched", ""),
+        "notes": request.form.get("notes", ""),
+        "runtime": details["runtime"],
+        "genres": details["genres"],
+        "cast": cast["cast"],
+        "director": cast["director"],
+        "keywords": keywords,
+        "poster_path": details["poster_path"],
+    }
+
+    others = db.get_bucket(session["user_id"], bucket)
+
+    if not others:
+        pending["position"] = 0
+        db.add_log_entry(session["user_id"], pending)
+        flash("Added to your log :)")
+        return redirect(url_for("movie", movie_id=movie_id))
+
+    session["pending"] = pending
+    session["lo"] = 0
+    session["hi"] = len(others)
+    return redirect(url_for("rank"))
+
+@app.route("/rank", methods=["GET", "POST"])
+@login_required
+def rank():
+    pending = session.get("pending")
+    if not pending:
+        return redirect(url_for("index"))
+
+    others = db.get_bucket(session["user_id"], pending["bucket"])
+    lo = session["lo"]
+    hi = session["hi"]
+    mid = (lo + hi) // 2
+
+    if request.method == "POST":
+        # 1. Narrow the range based on the answer
+        choice = request.form.get("choice")
+        if choice == "new":
+            hi = mid
+        elif choice == "old":
+            lo = mid + 1
+        else:
+            lo = mid
+            hi = mid
+
+        # 2. Down to one spot? Save it.
+        if lo == hi:
+            pending["position"] = lo
+            db.add_log_entry(session["user_id"], pending)
+            session.pop("pending")
+            session.pop("lo")
+            session.pop("hi")
+            flash(f"Ranked #{lo + 1} in {pending['bucket']}!")
+            return redirect(url_for("movie", movie_id=pending["tmdb_id"]))
+
+        # 3. Otherwise, save the new range and ask again
+        session["lo"] = lo
+        session["hi"] = hi
+        return redirect(url_for("rank"))
+
+    return render_template("rank.html", pending=pending, other=others[mid])
 
 @app.route("/log/delete/<int:entry_id>", methods=["POST"])
 @login_required
@@ -234,8 +309,9 @@ def delete_from_log(entry_id):
     (Otherwise anyone could delete anyone's movies by guessing numbers!)
     Then redirect back to the log page.
     """
-    # TODO
-    pass
+    db.delete_log_entry(session["user_id"], entry_id)
+    flash("Removed from your log.")
+    return redirect(url_for("my_log"))
 
 
 # =============================================================================

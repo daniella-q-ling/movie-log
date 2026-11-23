@@ -59,7 +59,8 @@ def get_details(tmdb_id):
         "genres": [genre["name"] for genre in data.get("genres", [])],
         "overview": data.get("overview"),
         "rating": data.get("vote_average"),
-        "poster_path": data.get("poster_path")
+        "poster_path": data.get("poster_path"),
+        "id": data.get("id")
     }
 
 def get_cast(tmdb_id):

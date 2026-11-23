@@ -3,9 +3,14 @@
 {% block title %}Log in{% endblock %}
 
 {% block content %}
-<!--
-  PART 17: Login form
+<h1>Log in</h1>
 
-  TODO: Same as signup.html, but with a "Log in" button and a link to sign up instead.
--->
+<form method="post">
+  <input type="text" name="username" placeholder="Username" required>
+  <input type="password" name="password" placeholder="Password" required>
+  <button type="submit">Log in</button>
+</form>
+
+<p>New here? <a href="{{ url_for('signup') }}">Sign up</a></p>
+
 {% endblock %}

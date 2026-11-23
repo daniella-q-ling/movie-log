@@ -75,3 +75,15 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+.rank-card {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+}
+
+.log-poster {
+  width: 50px;
+  border-radius: 4px;
+}

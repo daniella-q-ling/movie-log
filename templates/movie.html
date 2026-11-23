@@ -21,6 +21,23 @@
   </div>
 </div>
 
+<h2>Log it</h2>
+{% if not session.get('user_id') %}
+  <p><a href="{{ url_for('login') }}">Log in</a> to log this movie.</p>
+{% elif entry %}
+  <p>You ranked this <strong>{{ entry.rating }}</strong>/10 ({{ entry.bucket }}).</p>
+{% else %}
+  <form method="post" action="{{ url_for('add_to_log', movie_id=details.id) }}">
+    <input type="date" name="date_watched">
+    <textarea name="notes" placeholder="Notes (optional)"></textarea>
+    <div class="grid">
+      <button type="submit" name="bucket" value="loved">💚 Loved it</button>
+      <button type="submit" name="bucket" value="fine">💛 It was fine</button>
+      <button type="submit" name="bucket" value="disliked">🩶 Didn't like it</button>
+    </div>
+  </form>
+{% endif %}
+
 <h2>Reviews</h2>
 {% for review in reviews %}
   <article>
