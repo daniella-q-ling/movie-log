@@ -376,8 +376,28 @@ def discover_page():
     Turn names into IDs with get_genre_list, find_person, and find_keyword,
     then call discover(...).
     """
-    # TODO
-    pass
+    genres = get_genre()
+    if not request.args:
+        return render_template("discover.html", genres=genres, results=None)
+
+    genre_name = request.args.get("genre", "")
+    genre_id = genres.get(genre_name) if genre_name else None
+
+    max_runtime = request.args.get("max_runtime", "")
+    max_runtime = int(max_runtime) if max_runtime else None
+
+    min_year = request.args.get("min_year", "")
+    min_year = int(min_year) if min_year else None
+
+    actor = request.args.get("actor", "").strip()
+    person_id = find_person(actor) if actor else None
+
+    theme = request.args.get("theme", "").strip()
+    keyword_id = find_keyword(theme) if theme else None
+
+    results = discover(genre_id=genre_id, max_runtime=max_runtime, min_year=min_year,
+                       person_id=person_id, keyword_id=keyword_id)
+    return render_template("discover.html", genres=genres, results=results)
 
 
 @app.route("/recommend")

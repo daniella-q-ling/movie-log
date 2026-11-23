@@ -179,22 +179,14 @@ def get_genre():
     return {genre["name"]: genre["id"] for genre in data.get("genres", [])}
 
 def find_person(name):
-    """
-    Call /search/person
-    Return ID of top result, or None if nothing is found
-    """
-    url = f"{BASE_URL}/search/person"
-    params = {
-        "api_key": API_KEY
-    }
-        
-    response = requests.get(url, params=params)
+    """Return the TMDB ID of the top person matching `name`, or None."""
+    response = requests.get(BASE_URL + "/search/person",
+                            params={"api_key": API_KEY, "query": name})
     data = response.json()
-
     results = data.get("results", [])
-    if results:
-        return results[0]["id"]
-    return None
+    if not results:
+        return None
+    return results[0].get("id")
 
 def find_keyword(word):
     """
@@ -202,18 +194,14 @@ def find_keyword(word):
     Return ID of top result, or None if nothing is foud.
     (Used for theme filters like "time travel".)
     """
-    url = f"{BASE_URL}/search/keyword"
-    params = {
-        "api_key": API_KEY
-    }
-            
-    response = requests.get(url, params=params)
+    response = requests.get(BASE_URL + "/search/keyword",
+                                params={"api_key": API_KEY, "query": word})
     data = response.json()
-
     results = data.get("results", [])
-    if results:
-        return results[0]["id"]
-    return None
+    if not results:
+        return None
+    return results[0].get("id")
+    
 
 def discover(genre_id=None, max_runtime=None, min_year=None, 
              person_id=None, keyword_id=None):

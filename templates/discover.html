@@ -3,21 +3,47 @@
 {% block title %}Discover{% endblock %}
 
 {% block content %}
-<!--
-  PART 19: Discover with filters
+<h1>Discover</h1>
 
-  TODO:
-    1. A form with method="get" and these inputs:
-         - genre: a <select> dropdown (loop over the genre names you pass in from app.py)
-         - max_runtime: number input (minutes)
-         - min_year: number input
-         - actor: text input
-         - theme: text input (e.g. "time travel")
-       Every field is optional.
-    2. Below it, if there are results, show them as cards,
-       just like search.html. (Copy that loop!)
+<form method="get">
+  <div class="grid">
+    <select name="genre">
+      <option value="">Any genre</option>
+      {% for name in genres %}
+        <option value="{{ name }}" {% if request.args.get('genre') == name %}selected{% endif %}>{{ name }}</option>
+      {% endfor %}
+    </select>
+    <input type="number" name="max_runtime" placeholder="Max minutes"
+           value="{{ request.args.get('max_runtime', '') }}">
+    <input type="number" name="min_year" placeholder="From year"
+           value="{{ request.args.get('min_year', '') }}">
+  </div>
 
-  Bonus: keep the user's choices filled in after they submit, e.g.
-       <input name="actor" value="{{ request.args.get('actor', '') }}">
--->
+  <div class="grid">
+    <input type="text" name="actor" placeholder="Actor (e.g. Zendaya)"
+           value="{{ request.args.get('actor', '') }}">
+    <input type="text" name="theme" placeholder="Theme (e.g. time travel)"
+           value="{{ request.args.get('theme', '') }}">
+  </div>
+
+  <button type="submit">Find movies</button>
+</form>
+
+{% if results is not none %}
+  {% if results %}
+    <div class="grid-cards">
+      {% for movie in results %}
+        <a href="{{ url_for('movie', movie_id=movie.id) }}">
+          {% if movie.poster_path %}
+            <img src="{{ POSTER_URL }}{{ movie.poster_path }}" alt="{{ movie.title }}">
+          {% endif %}
+          <strong>{{ movie.title }}</strong>
+          <p>{{ movie.year }}</p>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>No movies match those filters. Try loosening them?</p>
+  {% endif %}
+{% endif %}
 {% endblock %}
