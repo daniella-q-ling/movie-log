@@ -302,5 +302,117 @@ def because_you_liked(movies, min_rating=8, top_n = 10):
     )
 
     return sorted_recommendations[:top_n]
+
+# PHASE 3, PART 9: Own taste profile
+
+def build_profile(movies):
+    """
+    Go through log and score every genre, actor, director, keyword.
+    Each time one appears in a movie, add (that movie's rating -5) to its score.
+    Movies you loved push score up, movies disliked pull it down.
+
+    Return dictionary:
+    {"genres": {"Science Fiction": 8, "Romance": -3, ...}, 
+     "cast": {"Leonardo DiCaprio": 4, ...},
+     "director": {"Christopher Nolan": 8, ...},
+     "keywords": {"time traavel": 5, ...}}
+    """
+    profile = {
+        "genres": {},
+        "cast": {},
+        "director": {},
+        "keywords": {}
+    }
+
+    for movie in movies:
+        score = movie["Rating"] - 5
+
+        # Score each genre
+        for genre in movie.get("Genres", []):
+            if genre in profile["genres"]:
+                profile["genres"][genre] += score
+            else:
+                profile["genres"][genre] = score
+        # Score each actor
+        for actor in movie.get("Cast", []):
+            if actor in profile["cast"]:
+                profile["cast"][actor] += score
+            else:
+                profile["cast"][actor] = score
+        # Score the director
+        director = movie.get("Director")
+
+        if director:
+            if director in profile["director"]:
+                profile["director"][director] += score
+            else:
+                profile["director"] = score
+        # Score the keywords
+        for keyword in movie.get("Keywords", []):
+            if keyword in profile["keywords"]:
+                profile["keywords"][keyword] += score
+            else:
+                profile["keywords"][keyword] = score
+
+    return profile
+        
+
+def score_movie(candidate, profile):
+    """
+    Given a candidate movie (dictionary with genres, cast, director, keywords) 
+    and profile, return two things:
+    - total score: sum of profile scores that match
+    - reasons: list of the biggest matches, e.g.
+        ["director Christopher Nolan +8", "genre Science Fiction +6"]
+    """
+
+    total_score = 0
+    reasons = []
+
+    # Check genres
+    for genre in candidate["genres"]:
+        if genre in profile["genres"]:
+            score = profile["genres"][genre]
+            total_score += score
+
+            if score != 0:
+                reasons.append(f"genre {genre}{score:+}")
+
+    # Check actors
+    for actor in candidate["cast"]:
+        if actor in profile["cast"]:
+            score = profile["cast"][actor]
+            total_score += score
+
+            if score != 0:
+                reasons.append(f"actor {actor}{score:+}")
+
+    # Check director
+    director = candidate["director"]
+    if director in profile["director"]:
+        score = profile["director"][director]
+        total_score += score
+
+        if score != 0:
+            reasons.append(f"director {director}{score:+}")
+
+    # Check keywords
+    for keyword in candidate["keywords"]:
+        if keyword in profile["keywords"]:
+            score = profile["keywords"][keyword]
+            total_score += score
+
+            if score != 0:
+                reasons.append(f"keywords {keyword}{score:+}")
+
+    return total_score, reasons
+
+def recommend(movies, top_n=10):
+    """
+    1. Build profile from the loop
+    2. Get candidate movies (from because_you_liked and/or discover)
+    3. Fetch each candidate's details, cast, keywords so they can be scored
+    4. Score, sort highest, print top_n with their reasons
+    """
         
 
