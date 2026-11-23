@@ -53,13 +53,13 @@ def get_details(tmdb_id):
     data = response.json()
 
     return {
-        "Title": data.get("title"),
-        "Year": data.get("release_date", "")[:4],
-        "Runtime": data.get("runtime"),
-        "Genres": [genre["name"] for genre in data.get("genres", [])],
-        "Overview": data.get("overview"),
-        "Rating": data.get("vote_average"),
-        "Poster Path": data.get("poster_path")
+        "title": data.get("title"),
+        "year": data.get("release_date", "")[:4],
+        "runtime": data.get("runtime"),
+        "genres": [genre["name"] for genre in data.get("genres", [])],
+        "overview": data.get("overview"),
+        "rating": data.get("vote_average"),
+        "poster_path": data.get("poster_path")
     }
 
 def get_cast(tmdb_id):
@@ -81,8 +81,8 @@ def get_cast(tmdb_id):
     director = next((member["name"] for member in data.get("crew", []) if member["job"] == "Director"), None)
 
     return {
-        "Cast": cast,
-        "Director": director
+        "cast": cast,
+        "director": director
     }
 
 def get_reviews(tmdb_id, max_reviews = 5, max_length = 200):

@@ -93,9 +93,15 @@ def movie(movie_id):
          their log (db.get_log_entry) so the page can say "Already logged".
       3. render_template("movie.html", ...) passing everything the page needs.
     """
-    # TODO
-    pass
+    details = get_details(movie_id)
+    print("DETAILS:", details)
+    cast = get_cast(movie_id)
+    reviews = get_reviews(movie_id)
+    keywords = get_keywords(movie_id)
+    entry = None
 
+    return render_template("movie.html", details=details, cast=cast,
+                       reviews=reviews, keywords=keywords, entry=entry)
 
 # =============================================================================
 # PART 17: Accounts

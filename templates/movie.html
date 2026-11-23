@@ -3,21 +3,32 @@
 {% block title %}{{ details.title }}{% endblock %}
 
 {% block content %}
-<!--
-  PART 14: Movie details page
-  Variables from app.py: whatever you passed in (details, cast, reviews, keywords, entry...)
 
-  TODO:
-    1. Two columns: poster on the left, info on the right.
-       Info: title (year), runtime, TMDB rating, genres, director, cast, themes, plot.
-       Hint: {{ details.genres | join(", ") }} turns a list into "Action, Sci-Fi"
-    2. A Reviews section: loop over reviews and show author and text.
-       If there are none, say "No reviews yet."
-    3. The "Log it" section (PART 18):
-         - Not logged in: a link to log in.
-         - Already logged: "You rated this X/10 on DATE".
-         - Otherwise: a form that POSTs to {{ url_for('add_to_log', movie_id=details.id) }}
-           with inputs named rating (type="range" min="1" max="10" or a number input),
-           date_watched (type="date"), and notes (a <textarea>), plus a submit button.
--->
+<div class="movie-layout">
+  <div>
+    {% if details.poster_path %}
+      <img src="{{ POSTER_URL }}{{ details.poster_path }}" alt="{{ details.title }}">
+    {% endif %}
+  </div>
+  <div>
+    <h1>{{ details.title }} ({{ details.year }})</h1>
+    <p><strong>Runtime:</strong> {{ details.runtime }} min</p>
+    <p><strong>Genres:</strong> {{ details.genres | join(", ") }}</p>
+    <p><strong>Director:</strong> {{ cast.director }}</p>
+    <p><strong>Cast:</strong> {{ cast.cast | join(", ") }}</p>
+    <p><strong>Themes:</strong> {{ keywords | join(", ") }}</p>
+    <p>{{ details.overview }}</p>
+  </div>
+</div>
+
+<h2>Reviews</h2>
+{% for review in reviews %}
+  <article>
+    <strong>{{ review.author }}</strong>
+    <p>{{ review.content }}</p>
+  </article>
+{% else %}
+  <p>No reviews yet.</p>
+{% endfor %}
+
 {% endblock %}
