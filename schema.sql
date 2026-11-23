@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS log_entries (
     year         INTEGER,
     bucket       TEXT,
     position     INTEGER,
+    my_rating    REAL,
     date_watched TEXT,
     notes        TEXT,
     runtime      INTEGER,

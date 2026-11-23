@@ -113,9 +113,9 @@ def add_log_entry(user_id, movie):
     )
 
     conn.execute(
-    "INSERT INTO log_entries (user_id, tmdb_id, title, year, bucket, position, "
+    "INSERT INTO log_entries (user_id, tmdb_id, title, year, bucket, position, my_rating, "
     "date_watched, notes, runtime, genres, cast_members, director, keywords, poster_path) "
-    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     (
         user_id,
         movie["tmdb_id"],
@@ -123,6 +123,7 @@ def add_log_entry(user_id, movie):
         movie["year"],
         movie["bucket"],
         movie["position"],
+        movie.get("my_rating"),
         movie["date_watched"],
         movie["notes"],
         movie["runtime"],

@@ -3,16 +3,17 @@
 {% block title %}{{ details.title }}{% endblock %}
 
 {% block content %}
-
 <div class="movie-layout">
   <div>
     {% if details.poster_path %}
       <img src="{{ POSTER_URL }}{{ details.poster_path }}" alt="{{ details.title }}">
     {% endif %}
   </div>
+
   <div>
     <h1>{{ details.title }} ({{ details.year }})</h1>
     <p><strong>Runtime:</strong> {{ details.runtime }} min</p>
+    <p><strong>Rating:</strong> {{ details.rating | round(1) }}/10</p>
     <p><strong>Genres:</strong> {{ details.genres | join(", ") }}</p>
     <p><strong>Director:</strong> {{ cast.director }}</p>
     <p><strong>Cast:</strong> {{ cast.cast | join(", ") }}</p>
@@ -24,12 +25,22 @@
 <h2>Log it</h2>
 {% if not session.get('user_id') %}
   <p><a href="{{ url_for('login') }}">Log in</a> to log this movie.</p>
+
 {% elif entry %}
-  <p>You ranked this <strong>{{ entry.rating }}</strong>/10 ({{ entry.bucket }}).</p>
+  <p>Ranked <strong>{{ entry.rating }}</strong> in {{ entry.bucket }}
+     {% if entry.my_rating %}· your rating <strong>{{ "%.2f" | format(entry.my_rating) }}/10</strong>{% endif %}</p>
+
 {% else %}
   <form method="post" action="{{ url_for('add_to_log', movie_id=details.id) }}">
     <input type="date" name="date_watched">
     <textarea name="notes" placeholder="Notes (optional)"></textarea>
+
+    <label>
+      Your rating: <output>7.00</output>/10
+      <input type="range" name="my_rating" min="1" max="10" step="0.01" value="7"
+             oninput="this.previousElementSibling.value = Number(this.value).toFixed(2)">
+    </label>
+
     <div class="grid">
       <button type="submit" name="bucket" value="loved">💚 Loved it</button>
       <button type="submit" name="bucket" value="fine">💛 It was fine</button>
@@ -47,5 +58,4 @@
 {% else %}
   <p>No reviews yet.</p>
 {% endfor %}
-
 {% endblock %}

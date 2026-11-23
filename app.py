@@ -238,6 +238,7 @@ def add_to_log(movie_id):
         "title": details["title"],
         "year": details["year"],
         "bucket": bucket,
+        "my_rating": round(float(request.form.get("my_rating", 0)), 2), 
         "date_watched": request.form.get("date_watched", ""),
         "notes": request.form.get("notes", ""),
         "runtime": details["runtime"],
