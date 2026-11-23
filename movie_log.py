@@ -407,70 +407,63 @@ def score_movie(candidate, profile):
 
     return total_score, reasons
 
-def recommend(movies, top_n=10):
+def get_recommendations_for(movies, top_n=10):
     """
-    1. Build profile from the loop
-    2. Get candidate movies (from because_you_liked and/or discover)
-    3. Fetch each candidate's details, cast, keywords so they can be scored
-    4. Score, sort highest, print top_n with their reasons
+    Return a list of recommended movies (best first), each a dictionary with 
+    id, title, poster_path, score, and reasons.
     """
-
-    if len(movies) == 0:
-        print("Your movie log is empty. Add movies to get recommendations.")
-        return
-
-    # Build taste profile
+    # 1. Build taste profile from the log
     profile = build_profile(movies)
 
-    # Get candidate movies
-    candidates = because_you_liked(movies, min_rating = 0, top_n = 50)
+    # 2. Remember what's already logged, so it isn't recommended again.
+    logged_ids = {m["tmdb_id"] for m in movies}
 
-    if not candidates:
-        print("No recommendations found.")
-        return
+    # 3. Gather candidates from TMDB's recommendations for your favorites
+    favorites = [m for m in movies if m["rating"] >= 8][:5]
+    counts = {}
+    for fav in favorites:
+        for r in get_recommended(fav["tmdb_id"]):
+            if r["id"] in logged_ids:
+                continue
+            counts[r["id"]] = counts.get(r["id"], 0) + 1
 
-    scored_movies = []
+    # 4. Keep 15 candidates that came up most often
+    candidate_ids = sorted(counts, key=counts.get, reverse=True)[:15]
 
-    # Fetch candidate's details
-    for candidate in candidates:
-        tmdb_id = candidate["tmdb_id"]
-        
-        details = get_details(tmdb_id)
-        cast_info = get_cast(tmdb_id)
-        keywords = get_keywords(tmdb_id)
-
-        movie_info = {
-            "genres": details["Genres"],
-            "cast": cast_info["Cast"],
-            "keywords": keywords
+    # 5. Score each candidate that came up most often
+    recs = []
+    for movie_id in candidate_ids:
+        details = get_details(movie_id)
+        cast = get_cast(movie_id)
+        candidate = {
+            "genres": details["genres"],
+            "cast": cast["cast"],
+            "director": cast["director"],
+            "keywords": get_keywords(movie_id),
         }
+        score, reasons = score_movie(candidate, profile)
+        recs.append({
+            "id": movie_id,
+            "title": details["title"],
+            "poster_path": details["poster_path"],
+            "score": score,
+            "reasons": reasons,
+        })
 
-    total_score, reasons = score_movie(movie_info, profile)
-    scored_movies.append({
-        "title": details["Title"],
-        "year": details["Year"],
-        "tmdb_id": tmdb_id,
-        "score": total_score,
-        "reasons": reasons
-    })
+    # 6. Best first, only top ones
+    recs.sort(key=lambda r:r["score"], reverse=True)
+    return recs[:top_n]
 
-    # Sort by highest score first
-    scored_movies.sort(
-        key=lambda movie: movie["Score"], 
-        reverse = True
-    )
-
-    # Print top recommendations
-    print("\nMovies recommended for you:")
-
-    for i, movie in enumerate(scored_movies[:top_n], start=1):
-        print(f"\n{i}, {movie["title"]} ({movie["year"]})")
-        print(f"    Taste score: {movie['score']}")
-
-        if movie["Reasons"]:
-            print("     Because you like:")
-            for reason in movie["reasons"][:5]:
-                print(f"    - {reason}")
+def recommend(movies, top_n=10):
+    """Print personalized recommendations in the terminal."""
+    recs = get_recommendations_for(movies, top_n)
+    if not recs:
+        print("No recommendations yet. Log a few more movies you loved!")
+        return
+    print("\n==== RECOMMENDED FOR YOU ====")
+    for i, rec in enumerate(recs, start=1):
+        print(f"{i}. {rec['title']}  (score {rec['score']})")
+        print("   because: " + ", ".join(rec["reasons"]))
 
 # MENU
 
