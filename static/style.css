@@ -1,15 +1,62 @@
-/*
-  style.css: your own styling, applied on top of Pico CSS (PART 15).
-  Pico already makes things look decent; use this file to give the site its own personality.
+@font-face {
+  font-family: "Cute Dino";
+  src: url("fonts/cutedino.otf");
+}
 
-  TODO ideas:
-    - .grid-cards: lay movie cards out in a responsive grid
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: 1rem;
-    - Movie posters: width 100%, rounded corners (border-radius)
-    - Card hover effect: transform: scale(1.03); with a transition
-    - .flash: a colored banner for flash messages
-    - Pick an accent color and override Pico's: look up "Pico CSS customize colors"
-    - Check it on a phone-sized screen (browser dev tools → toggle device toolbar)
-*/
+nav strong {
+  font-family: "Cute Dino", sans-serif;
+  font-size: 1.5rem;
+}
+
+
+[data-theme=light],
+:root:not([data-theme=dark]) {
+  --pico-primary: #d96c8a;
+  --pico-primary-background: #d96c8a;
+  --pico-primary-hover: #c25475;
+  --pico-primary-hover-background: #c25475;
+  --pico-background-color: #fff8f3;
+  --pico-font-family: "Cute Dino", sans-serif;
+}
+
+.grid-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.grid-cards img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.grid-cards a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.grid-cards a {
+  transition: transform 0.2s ease;
+}
+
+.grid-cards a:hover {
+  transform: scale(1.08);
+}
+
+.movie-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.movie-layout img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+@media (max-width: 700px) {
+  .movie-layout {
+    grid-template-columns: 1fr;
+  }
+}
