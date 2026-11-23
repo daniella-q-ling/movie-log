@@ -3,11 +3,24 @@
   src: url("fonts/cutedino.otf");
 }
 
-nav strong {
+@font-face {
+  font-family: "Santa Costume";
+  src: url("fonts/santacostume.ttf");
+}
+
+nav,
+.grid-cards strong,
+.movie-layout h1 {
   font-family: "Cute Dino", sans-serif;
+}
+
+nav strong {
   font-size: 1.5rem;
 }
 
+body {
+  font-size: 1.1rem;
+}
 
 [data-theme=light],
 :root:not([data-theme=dark]) {
@@ -16,7 +29,7 @@ nav strong {
   --pico-primary-hover: #c25475;
   --pico-primary-hover-background: #c25475;
   --pico-background-color: #fff8f3;
-  --pico-font-family: "Cute Dino", sans-serif;
+  --pico-font-family: "Santa Costume", sans-serif;
 }
 
 .grid-cards {
